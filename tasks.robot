@@ -1,7 +1,11 @@
 *** Settings ***
 Documentation       Template robot main suite.
 Library     RPA.Browser.Selenium    auto_close=${FALSE}
+Library    RPA.Desktop
+Library    RPA.Excel.Files
+Library    RPA.Tables
 
+# _________________________________________________________________________________
 *** Variables ***
 # single value variables --> $
 ${name}    Joan
@@ -11,27 +15,35 @@ ${name}    Joan
 @{customers}    @{customer1}    @{customer2}    ${customer3}    ${customer4}
 
 # Dictionary --> &
-&{customer3}    company=Yes! It Finally...    name=WORKED    address=123 Yes rd    zipcode=90192    city=Portland    country=Italy    phone=5032203350    email=ItWorked@test.com
+&{customer3}    company=Yes!     name=WORKED    address=123 Yes rd    zipcode=90192    city=Portland    country=Italy    phone=5032203350    email=ItWorked@test.com
 
 &{customer4}    company=It happened...    name=AGAIN    address=3238 Walnut rd    zipcode=90192    city=Eugene    country=Spain    phone=5032203350    email=ItsWorking@gmail.com
+
+# ____________________________________________________________________________________
 *** Tasks ***
+# Description
+#     command
+
 Open the website of the CRM application
     Open website
+
 Add numerous customers to CRM system
     Add John to CRM system
 Add numerous customers to CRM system
     Add Customers List to CRM system
 
+Read companies from Excel and add to website
+    Fill the form using the data from Excel File
 
-Add numerous customers to CRM system
-    Add Customers List to CRM system
-    Add John to CRM system
-    Add Customer3 via List
-    Add Customer4 via List
-    Add Customer2 to CRM system
-    Add Customer1 to CRM system
-    Add Tiffany to CRM system
-    Add Brandon to CRM system
+# Add numerous customers to CRM system
+#     Add Customers List to CRM system
+#     Add John to CRM system
+#     Add Customer3 via List
+#     Add Customer4 via List
+#     Add Customer2 to CRM system
+#     Add Customer1 to CRM system
+#     Add Tiffany to CRM system
+#     Add Brandon to CRM system
 
 # Add numerous customers to CRM system
 #     Add Customer2 to CRM system
@@ -39,32 +51,23 @@ Add numerous customers to CRM system
 # Add numerous customers to CRM system
 #     Add Customer1 to CRM system
 
-# Add numerous customers to CRM system
-#     Add Brandon to CRM system
-    
-
-# Add numerous customers to CRM system
-#     Add Tiffany to CRM system
-
-# Add numerous customers to CRM system
-#     Add John to CRM system
-
+# ____________________________________________________________________________________
 *** Keywords *** 
 # functions
 
 Open website
     Open Available Browser    https://www.rpa-unlimited.com/youtube/robocorp-tutorial/
 
-Add Customer1 to CRM system
-    Input Text    company-name    ${customer1[0]}
-    Input Text    company-contact    ${customer1[1]}
-    Input Text    address    ${customer1[2]}
-    Input Text    zipcode    ${customer1[3]}
-    Input Text    city    ${customer1[4]}
-    Input Text    country    ${customer1[5]}
-    Input Text    telephone    ${customer1[6]}
-    Input Text    email    ${customer1[7]}
-    Submit Form
+# Add Customer1 to CRM system
+#     Input Text    company-name    ${customer1[0]}
+#     Input Text    company-contact    ${customer1[1]}
+#     Input Text    address    ${customer1[2]}
+#     Input Text    zipcode    ${customer1[3]}
+#     Input Text    city    ${customer1[4]}
+#     Input Text    country    ${customer1[5]}
+#     Input Text    telephone    ${customer1[6]}
+#     Input Text    email    ${customer1[7]}
+#     Submit Form
 
 Add Customer2 to CRM system
     Input Text    company-name    ${customer2}[0]
@@ -100,28 +103,40 @@ Add Customer3 via List
     Input Text    email    ${customers[2]['email']}
     Submit Form
 
-Add Customer4 via List
-    @{customers}=    Create List   ${customer1}    ${customer2}    ${customer3}    ${customer4}
-    Input Text    company-name    ${customers[3]['company']}
-    Input Text    company-contact    ${customers[3]['name']}
-    Input Text    address    ${customers[3]['address']}
-    Input Text    zipcode    ${customers[3]['zipcode']}
-    Input Text    city    ${customers[3]['city']}
-    Input Text    country    ${customers[3]['country']}
-    Input Text    telephone    ${customers[3]['phone']}
-    Input Text    email    ${customers[3]['email']}
+# Add Customer4 via List
+#     @{customers}=    Create List   ${customer1}    ${customer2}    ${customer3}    ${customer4}
+#     Input Text    company-name    ${customers[3]['company']}
+#     Input Text    company-contact    ${customers[3]['name']}
+#     Input Text    address    ${customers[3]['address']}
+#     Input Text    zipcode    ${customers[3]['zipcode']}
+#     Input Text    city    ${customers[3]['city']}
+#     Input Text    country    ${customers[3]['country']}
+#     Input Text    telephone    ${customers[3]['phone']}
+#     Input Text    email    ${customers[3]['email']}
+#     Submit Form
+
+Add Customers List from Spreadsheet
+    [Arguments]    ${company}
+    Input Text    company-name    ${company}[Company]
+    Input Text    company-contact    ${company}[Contact]
+    Input Text    address    ${company}[Address]
+    Input Text    zipcode    ${company}[Zipcode]
+    Input Text    city    ${company}[City]
+    Input Text    country    ${company}[Country]
+    Input Text    telephone    ${company}[Phone]
+    Input Text    email    ${company}[email]
     Submit Form
 
-Add Brandon to CRM system
-    Input Text    company-name    Toms Tech Academy
-    Input Text    company-contact    Brandon Magofna
-    Input Text    address    4195 Filbert Available
-    Input Text    zipcode    97303
-    Input Text    city    Salem
-    Input Text    country    USA
-    Input Text    telephone    12345678
-    Input Text    email    Magofna68@gmail.company
-    Submit Form
+
+Fill the form using the data from Excel File
+    Open Workbook    /Users/magofna68/Desktop/RoboCorp2.xls
+    ${companies}    Read Worksheet As Table    header=True
+    Close Workbook
+
+    FOR    ${company}    IN    @{companies}
+        Add Customers List from Spreadsheet    ${company}
+    END
+
 
 Add John to CRM system
     Input Text    company-name    Deltek
@@ -134,13 +149,3 @@ Add John to CRM system
     Input Text    email    John@gmail.company
     Submit Form
 
-Add Tiffany to CRM system
-    Input Text    company-name    Salem Hospital
-    Input Text    company-contact    Tiffany Snyder
-    Input Text    address    321 Richard st.
-    Input Text    zipcode    97003
-    Input Text    city    Portland
-    Input Text    country    USA
-    Input Text    telephone    5038889100
-    Input Text    email    Tiffany@gmail.company
-    Submit Form
